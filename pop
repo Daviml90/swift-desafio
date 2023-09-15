@@ -1,0 +1,145 @@
+
+import UIKit
+import Foundation
+
+protocol Residence: CustomStringConvertible {
+    var type: Type { get }
+    var city: String { get }
+    var numerOfRooms: Int { get }
+    var rent: Double { get }
+    var hasPool: Bool { get }
+    var vacation: Bool { get }
+    var season: Season { get }
+}
+protocol Vacation {
+    var season: Season { get }
+}
+
+enum Type {
+    case apartment, house, ranch
+    
+    func simpleDescription() -> String {
+        switch self {
+        case.apartment:
+            return "Apartamento"
+        case.house:
+            return "Casa"
+        case.ranch:
+            return "Chácara"
+        }
+    }   
+}
+
+enum Season {
+    case winter, summer, na
+    
+    func simpleDescription() -> String {
+        switch self {
+        case.winter:
+            return "Inverno"
+        case.summer:
+            return "Verão"
+        case.na:
+            return "N/A"
+        }
+    }   
+}
+
+struct Apartment: Residence {
+    let type: Type = .house
+    let numerOfRooms: Int
+    let city: String
+    let rent: Double
+    let hasPool: Bool = false
+    let season: Season = .na
+    
+    var annualRent: Double {
+        12 * rent
+    }
+}
+
+struct FarmHouse: Residence, Vacation {
+    let type: Type = .ranch
+    let numerOfRooms: Int
+    let city: String
+    let rent: Double
+    let season: Season
+    
+    var annualRent: Double {
+        12 * rent
+    }
+}
+
+extension Residence {
+    var hasPool: Bool { self is Vacation}
+    var vacation: Bool { self is Vacation}
+}
+
+extension CustomStringConvertible where Self: Residence {
+    var description: String {
+        var feature = hasPool ? "Tem piscina" : "Nao tem piscina"
+        return "Construção: \(self.type.simpleDescription())\nCidade: \(self.city)\nNúmero de quartos: \(self.numerOfRooms)\nAtrativo: \(feature)\nAluguel: \(self.rent)"
+    }
+}
+
+let vacationHouse = FarmHouse(numerOfRooms: 5, city: "Los Angeles", rent: 3000, season: .summer)
+print(vacationHouse)
+print("")
+let cityApartment = Apartment(numerOfRooms: 2, city: "New York", rent: 2500)
+print(cityApartment)
+
+
+var availableRentals: [Residence] = [cityApartment,vacationHouse]
+
+var forVacation: [String:String] = [:]
+
+for rental in availableRentals {
+    if rental.vacation {
+        forVacation[rental.type.simpleDescription()] = "Sim (\(rental.season.simpleDescription()))"
+    }else {
+        forVacation[rental.type.simpleDescription()] = "Não"
+    }
+}
+
+print("")
+print("Imóvel : Para férias?")
+forVacation.forEach { print("\($0): \($1)") }
+print("")
+
+
+
+var selectedRental = cityApartment
+var annualRent = selectedRental.annualRent
+var applicantIncome = 3000000.00
+var result: Bool = true
+
+if annualRent >= applicantIncome {
+    result = false
+}
+
+
+func fetchResult(from server: Bool) async -> String {
+    if server == true {
+        return "Aprovado!"
+    }
+    return "Reprovado."
+}
+
+func fetchAnalysis(from server: Bool) async -> String {
+    let result = await fetchResult(from: server)
+    if result == "Aprovado!" {
+        return "Renda suficiente."
+    }
+    return "Renda insuficiente."
+}
+
+func connectUser(to server: Bool) async {
+    async let result = fetchResult(from: server)
+    async let analysis = fetchAnalysis(from: server)
+    let greeting = await "Análise: \(analysis)\nResultado: \(result)"
+    print(greeting)
+}
+
+Task {
+    await connectUser(to: result)
+}
