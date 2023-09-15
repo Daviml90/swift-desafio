@@ -1,0 +1,183 @@
+
+import UIKit
+
+class SoccerPlayer {
+    var name: String
+    var team: Team
+    var age: Int
+    var position: Position
+    
+    init(name: String, team: Team, age: Int, position: Position) {
+        self.name = name
+        self.team = team
+        self.age = age
+        self.position = position
+    }
+    
+    func displaySalary() -> Double {
+        return 0.0
+    }
+    func simpleDescription() -> String {
+        return "Jogador: \(name)\nIdade: \(age)\nTime: \(team)\nPosition: \(position)"
+    }
+    
+}
+
+enum Position {
+    case goalkeeper, defender, midfilder, striker
+    
+    func simpleDescription() -> String {
+    switch self {
+    case.goalkeeper:
+        return "Goleiro"
+    case.defender:
+        return "Zagueiro"
+    case.midfilder:
+        return "Meio Campo"
+    case.striker:
+        return "Atacante"
+    }
+    }
+}
+
+enum Team {
+    case saoPaulo, corinthians, palmeiras, santos
+    
+    func simpleDescription() -> String {
+    switch self {
+    case.saoPaulo:
+        return "São Paulo"
+    case.corinthians:
+        return "Corinthians"
+    case.palmeiras:
+        return "Palmeiras"
+    case.santos:
+        return "Santos"
+    }
+    }
+    
+    func salary() -> Double {
+    switch self {
+    case.saoPaulo:
+        return 500000.0
+    case.corinthians:
+        return 520000.0
+    case.palmeiras:
+        return 800000.0
+    case.santos:
+        return 450000.0
+    }
+    }
+}
+
+class Goalkeeper: SoccerPlayer {
+    var agility: Double
+    private var salary: Double
+    
+    override func displaySalary() -> Double {
+        return (agility * team.salary())
+    }
+    
+    init(agility: Double, name: String, team: Team, age: Int) {
+        self.agility = agility
+        self.salary = team.salary()
+        super.init(name: name, team: team, age: age, position: .goalkeeper)
+    }
+
+    
+    override func simpleDescription() -> String {
+        return "Jogador: \(name)\nIdade: \(age)\nTime: \(team.simpleDescription())\nPosition: \(position.simpleDescription())\nAgilidade: \(agility)"
+        }
+}
+
+class Defender: SoccerPlayer {
+    var tackle: Double
+    private var salary: Double
+    
+    override func displaySalary() -> Double {
+        return (tackle * team.salary())
+    }
+    
+    init(tackle: Double, name: String, team: Team, age: Int) {
+        self.tackle = tackle
+        self.salary = team.salary()
+        super.init(name: name, team: team, age: age, position: .defender)
+    }
+    
+    override func simpleDescription() -> String {
+        return "Jogador: \(name)\nIdade: \(age)\nTime: \(team.simpleDescription())\nPosition: \(position.simpleDescription())\nDividida: \(tackle)"
+        }
+}
+
+class Midfielder: SoccerPlayer {
+    var pass: Double
+    private var salary: Double
+    
+    override func displaySalary() -> Double {
+        return (pass * team.salary())
+    }
+    
+    init(pass: Double, name: String, team: Team, age: Int) {
+        self.pass = pass
+        self.salary = team.salary()
+        super.init(name: name, team: team, age: age, position: .midfilder)
+    }
+    
+    override func simpleDescription() -> String {
+        return "Jogador: \(name)\nIdade: \(age)\nTime: \(team.simpleDescription())\nPosition: \(position.simpleDescription())\nPasse: \(pass)"
+        }
+}
+
+class Striker: SoccerPlayer {
+    var shoot: Double
+    private var salary: Double
+    
+    override func displaySalary() -> Double {
+        return (shoot * team.salary())
+    }
+    
+    init(shoot: Double, name: String, team: Team, age: Int) {
+        self.salary = team.salary()
+        self.shoot = shoot
+        super.init(name: name, team: team, age: age, position: .striker)
+    }
+    
+    override func simpleDescription() -> String {
+        return "Jogador: \(name)\nIdade: \(age)\nTime: \(team.simpleDescription())\nPosition: \(position.simpleDescription())\nChute: \(shoot)"
+        }
+}
+
+var dreamTeam: [SoccerPlayer] = [
+    Goalkeeper(agility: 9.5, name: "Marcos", team: .palmeiras, age: 30), Defender(tackle: 8.0, name: "Chicão", team: .corinthians, age: 27), Midfielder(pass: 9.9, name: "Neymar", team: .santos, age: 22), Striker(shoot: 9.8, name: "Luis Fabiano", team: .saoPaulo, age: 28)]
+
+for player in dreamTeam {
+    print(player.simpleDescription()+"\n")
+}
+
+var salaries = "-- Rank dos salários --\n"
+
+var lineUp: [String:String] = [:]
+
+for player in dreamTeam {
+    var position = player.position.simpleDescription()
+    lineUp[position] = player.name
+}
+
+print(" <---- Dream Team ---->")
+lineUp.forEach { print("\($0): \($1)") }
+print("")
+
+var salaryValues: [String:Double] = [:]
+
+for player in dreamTeam {
+    salaryValues[player.name] = player.displaySalary()
+}
+
+let sortedRank = salaryValues.sorted { $0.1 > $1.1 }
+
+for salary in sortedRank {
+    salaries.append(String(format: "\(salary.key): R$ %.2f \n", salary.value))
+}
+
+print(salaries)
+
